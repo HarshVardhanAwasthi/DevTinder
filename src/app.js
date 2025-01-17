@@ -14,6 +14,19 @@ app.post("/user",(req, res)=>{
     res.send("data saved on server");
 });
 
+app.get('/users/:userId/books/:bookId', (req, res) => {
+    res.send(req.params)
+  })
+
+  app.get('/flights/:from-:to', (req, res) => {
+    console.log(req.params);
+    res.send(req.params);
+  })
+
+  app.get('/username/:username/password/:passkey', (req, res) => {
+    console.log(req.params);
+    res.send(req.params);
+  })
 // app.use("/",(req, res)=>{
 //     res.send("hahahahahha mai aa gaya!!")
 // })
