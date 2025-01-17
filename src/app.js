@@ -10,6 +10,8 @@ const app=express();
 
 //  Place specific routes (e.g., /users) before general routes (e.g., /).
 
+// USING "USE" WILL MATCH ALL THE HTTP METHOD API CALLS TO A SPECIFIC ROUTE(eg:"/test" or "/start",etc) WETAHER IT IS A GET CALL(eg:"app.get(----)") or POST CALL(eg:"app.post(----)") or DELETE CALL(eg:"app.delete(----)")
+
 app.use("/test", (req,res)=>{
     res.send("hello to testing phase!!")
 })
