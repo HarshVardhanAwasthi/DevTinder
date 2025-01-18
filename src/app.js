@@ -2,6 +2,20 @@ const express=require("express")
 
 const app=express();
 
+/*
+ No Response is Sent:
+
+    -The server receives the request but doesn't send a response (res.send(), res.json(), or res.end() is missing).
+    -The client (browser, Postman, or any HTTP client) will keep waiting until the request times out.
+
+ Request Hangs Until Timeout:
+
+    -Since no response is sent, the client will keep waiting indefinitely.
+    -Eventually, the browser or client may timeout*/
+
+app.use("/users",(req,res)=>{
+
+})
 
 // Multiple handlers run sequentially.
 // Use next() to move to the next handler.
