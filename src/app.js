@@ -2,18 +2,12 @@ const express=require("express")
 
 const app=express();
 
-//throw new error has been used to generate random error to understand the topic of error handling.
-//one way of handling error.
+require("./config/database.js");// ye krne se tumne database connect kra dia with app.js
 
-app.get("/user/getdata",(req,res)=>{
-    try {
-        throw new Error("afjdja");
-        res.send("user data send");
-    } catch (error) {
-        res.status(501).send("something went wrong contact support team");
-    }
-})
-
+//but this is not right way to do so
+/*
+    -Because first you are opening ports to listen to request on server and then connecting to database, and if the website can't connect to the database, it will malfunction and likely throw errors such as database connection failures or data retrieval issues.
+*/
 
 app.listen(7000,()=>{
     console.log("welcome to port no 7000!!")
