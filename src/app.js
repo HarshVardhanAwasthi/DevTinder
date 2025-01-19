@@ -6,15 +6,14 @@ const app=express();
 //one way of handling error.
 
 app.get("/user/getdata",(req,res)=>{
-    throw new Error("afjdja");
-    res.send("user data send");
-})
-
-app.use("/",(err,req,res,next)=>{
-    if(err){
-        res.status(501).send("something went wrong");
+    try {
+        throw new Error("afjdja");
+        res.send("user data send");
+    } catch (error) {
+        res.status(501).send("something went wrong contact support team");
     }
 })
+
 
 app.listen(7000,()=>{
     console.log("welcome to port no 7000!!")
