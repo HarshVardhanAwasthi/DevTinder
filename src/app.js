@@ -2,23 +2,18 @@ const express=require("express")
 
 const app=express();
 
-const {userauth,adminauth}=require("./middlewares/auth.js");//exporting module auth.js
+//throw new error has been used to generate random error to understand the topic of error handling.
+//one way of handling error.
 
-
-//autherization middleware 
-
-app.use("/admin",adminauth) //using Commmon Js mosule for exporting and importing the modules to make code more readable and make its management more easier.
-
-// route handler for sending response back to admin after authorization
-
-app.get("/admin/getdata",(req,res)=>{
-    console.log("admin got the data");
-    res.send("data has been send");
+app.get("/user/getdata",(req,res)=>{
+    throw new Error("afjdja");
+    res.send("user data send");
 })
 
-app.delete("/admin/delete",(req,res)=>{
-    console.log("admin wants to delete the data");
-    res.send("data has been deleted");
+app.use("/",(err,req,res,next)=>{
+    if(err){
+        res.status(501).send("something went wrong");
+    }
 })
 
 app.listen(7000,()=>{
