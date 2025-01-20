@@ -2,13 +2,53 @@ const express=require("express")
 
 const app=express();
 
-require("./config/database.js");// ye krne se tumne database connect kra dia with app.js
+const User=require("./models/user.js");
 
-//but this is not right way to do so
-/*
-    -Because first you are opening ports to listen to request on server and then connecting to database, and if the website can't connect to the database, it will malfunction and likely throw errors such as database connection failures or data retrieval issues.
-*/
+const connectDB=require("./config/database.js");
 
-app.listen(7000,()=>{
-    console.log("welcome to port no 7000!!")
+
+//When a client (such as a frontend or API testing tool like Postman) sends a POST request to /signup, a new user document is created and stored in the MongoDB database using Mongoose.
+
+//Uses async function: Since saving data in MongoDB is an asynchronous operation, we use async/await.
+
+app.post("/signup",async (req,res)=>{
+    /*
+        const user = new User({.......})
+        Creates a new User object:
+        -This initializes a new user using the Mongoose model (User).
+        -The User model ensures that the document follows the structure defined in the Mongoose schema.
+    
+    */
+    const user= new User({
+        "firstName":"Harss",
+        "lastName":"Awassthi",
+        "gender":"male",
+        "emailId":"logo@1.com",
+        "age":23,
+        "password":"@123@hrs",
+    });
+
+    /*
+        await user.save();
+        Saves the user in MongoDB:
+        -user.save() is an asynchronous operation that inserts the document into the MongoDB collection.
+        -await ensures that we wait for the database operation to complete before proceeding. */
+    await user.save();
+    res.send("account created successfully");  // Once the user is saved successfully, the server responds with "account created successfully", letting the client know that the signup process was successful.
 })
+
+connectDB().then(()=>{
+    console.log("database connection established.....");
+    app.listen(7000,()=>{
+        console.log("welcome to port no 7000!!")
+    })
+})
+.catch((err)=>{
+    console.log("database cannot be connected!!",err)
+});
+
+
+
+
+
+
