@@ -1,12 +1,32 @@
 const mongoose=require("mongoose");
 
+//Validation in Mongoose ensures that the data stored in MongoDB follows specific rules and constraints. It helps prevent invalid data from being saved.
+// we can also create custom validation using validator function as used in phone number field...
+
 const userSchema=new mongoose.Schema({
-    "firstName":String,
-    "lastName":String,
-    "age":Number,
-    "gender":String,
-    "emailId":String,
-    "password":String
+    "firstName":{type:String,required:true,minLength:3,maxLength:50},
+
+    "lastName":{type:String,minLength:3,maxLength:50},
+    
+    "age":{type:Number,required:true,min:18},
+    
+    "gender":{type:String,required:true,enum:["male","female","others"]},
+    
+    "emailId":{type:String,required:true,lowercase:true,unique:true,match: [/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/],trim:true},
+    
+    "phoneNumber": { 
+        type: String, required: true, 
+        validate: {
+            validator: function(value) {
+                return /^[0-9]{10}$/.test(value);  // Regex for 10-digit number
+            },
+        }    
+    },
+
+    "password":{type:String,required:true}
+},
+{
+    timestamps:true,
 });
 
 const User=mongoose.model("User",userSchema);

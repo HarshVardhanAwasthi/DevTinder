@@ -10,9 +10,17 @@ app.use(express.json());
 app.post("/signup",async (req,res)=>{
     
     const user= new User(req.body);
-
-    await user.save();
-    res.send("account created successfully");  
+    try {
+        if (user) {
+            await user.save();
+            res.send("account created successfully");  
+        } else {
+            res.status(404).send("not a valid details")
+        }
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+    
 })
 
 //playing with mongoose methods...
@@ -35,7 +43,7 @@ app.get("/user",async (req,res)=>{
         }
 
     } catch (error) {
-        res.status(400).send("something went wrong!!1");
+        res.status(400).send("something went wrong!!");
     }
 })
 
@@ -122,7 +130,7 @@ app.patch("/updateuser",async (req,res)=>{
     console.log(id);
     try {
         if (id) {
-            const user=await User.findByIdAndUpdate({_id:id},data,{returnDocument:'after'});/*shorthand for this is 
+            const user=await User.findByIdAndUpdate({_id:id},data,{returnDocument:'after',runValidators:true});/*shorthand for this is 
             const user=await User.findByIdAndUpdate({id,data,{returnDocument:'after'})*/
             console.log(user);
             res.send("account updated!!!");
@@ -143,7 +151,7 @@ app.patch("/update-emailid",async (req,res)=>{
     console.log(id);
     try {
         if (id) {
-            const user=await User.findOneAndUpdate({emailId:id},data,{returnDocument:'after'});
+            const user=await User.findOneAndUpdate({emailId:id},data,{returnDocument:'after',runValidators:true});
             console.log(user);
             res.send("account updated!!!");
         } else {
