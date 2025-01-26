@@ -9,7 +9,7 @@ const connectDB=require("./config/database.js");
 app.use(express.json());
 app.post("/signup",async (req,res)=>{
     
-    const user= new User(req.body);
+    const user = new User(req.body);
     try {
         if (user) {
             await user.save();
@@ -124,11 +124,24 @@ app.delete("/user",async (req,res)=>{
 
 //updating user data by accesing it from database using id and then updating data fields requested by user to update in its account information....
 
-app.patch("/updateuser",async (req,res)=>{
-    const id=req.body.userid;
+app.patch("/updateuser/:_id?",async (req,res)=>{
+    const id=req.params._id;
     const data=req.body;
     console.log(id);
     try {
+        const allowed_Update=["skills","age","photoUrl"];//maine bana dia ek array jismein maine wo fields add krdi jo update ke lie allowed hai...
+
+        const isAllowed=Object.keys(data).every((key)=>{
+            return allowed_Update.includes(key);
+        })//object.keys(data)->isne sari fields ki key values extract kr li jo body mein bheji gai hai for update
+        //fir allowed_updates se match kia jo keys bheji gai hain wo updates ke lie allowed hai ki nhi
+        //agr sari fields allowed hai to true return krdo wrna false
+        //ye hogaya api level validation
+        //JO VALIDATION MAINE SCHEMA MEIN INCLUDE KIE HAIN WO HAI SCHEMA LEVEL VALIDATION...
+        if(!isAllowed){
+            throw new Error("Update Not allowed...");
+            
+        }
         if (id) {
             const user=await User.findByIdAndUpdate({_id:id},data,{returnDocument:'after',runValidators:true});/*shorthand for this is 
             const user=await User.findByIdAndUpdate({id,data,{returnDocument:'after'})*/
@@ -138,7 +151,7 @@ app.patch("/updateuser",async (req,res)=>{
             res.status(404).send("user not found!!!");
         }
     } catch (error) {
-        res.status(400).send("something went wrong!!");
+        res.status(400).send("Update Failed "+error.message);
     }
 })
 

@@ -1,4 +1,7 @@
 const mongoose=require("mongoose");
+const validator=require("validator");//we have install validator library from npm which helps in validating and sanitizing the database and also in api validation...
+
+// ensuring that data is in a format like in email format is  ("nameofusernumber@gamil.com") mtlb kuch is tarike ka samjh jao
 
 //Validation in Mongoose ensures that the data stored in MongoDB follows specific rules and constraints. It helps prevent invalid data from being saved.
 // we can also create custom validation using validator function as used in phone number field...
@@ -10,16 +13,18 @@ const userSchema=new mongoose.Schema({
     
     "age":{type:Number,required:true,min:18},
     
-    "gender":{type:String,required:true,enum:["male","female","others"]},
+    "gender":{type:String,required:true,validate:(value)=>{
+        return ["male","female","others"].includes(value);
+    }},//custom validator for gender correct value...
     
-    "emailId":{type:String,required:true,lowercase:true,unique:true,match: [/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/],trim:true},
+    "emailId":{type:String,required:true,lowercase:true,unique:true,trim:true,
+        validate:(val)=>validator.isEmail(val),
+    },
     
     "phoneNumber": { 
         type: String, required: true, 
-        validate: {
-            validator: function(value) {
+        validate: function(value) {
                 return /^[0-9]{10}$/.test(value);  // Regex for 10-digit number
-            },
         }    
     },
 
