@@ -22,13 +22,12 @@ const userSchema=new mongoose.Schema({
     },
     
     "phoneNumber": { 
-        type: String, required: true, 
-        validate: function(value) {
-                return /^[0-9]{10}$/.test(value);  // Regex for 10-digit number
-        }    
+        type: String, required: true,unique: true, validate:(val)=>validator.isMobilePhone(val),
     },
 
-    "password":{type:String,required:true}
+    "password":{type:String,required:true,
+        validate:(val)=>validator.isStrongPassword(val),
+    }
 },
 {
     timestamps:true,
