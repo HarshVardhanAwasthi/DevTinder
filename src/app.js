@@ -1,16 +1,67 @@
 const express=require("express")
-
+const bcrypt=require("bcrypt")
 const app=express();
-
+const {validatedata}=require("./utils/validation.js")
 const User=require("./models/user.js");
 
 const connectDB=require("./config/database.js");
 
 app.use(express.json());
+
+
+app.post("/login",async (req,res)=>{
+    const {emailId,password}=req.body;
+
+    const user=await User.findOne({emailId:emailId});
+
+    try{
+        if(!user){
+            throw new Error("Invalid Credential");
+        }
+        const ispass=await bcrypt.compare(password,user.password);
+
+        if(ispass){
+            res.send("login succesfull!!");
+        }
+        else{
+            throw new Error("Invalid Credential");        
+        }
+    }
+    
+    catch(error){
+        res.status(400).send("Error: "+error.message);
+    }
+})
+
+
+/*
+    for sign up remember three steps:
+    1- validation of the data--(validatedata(req))
+
+    2- encrypt the password--  const hashpass=await bcrypt.hash(user.password,10);
+                               user.password=hashpass;
+
+    3- create new instance of the user model--(const user = new User({
+                                                 firstName,lastName,emailId,password}))
+*/
 app.post("/signup",async (req,res)=>{
     
-    const user = new User(req.body);
     try {
+        validatedata(req);
+
+        const {firstName,lastName,emailId,password,age,gender}=req.body;
+
+        const hashpass=await bcrypt.hash(password,10);
+
+        const user=new User({
+            firstName,
+            lastName,
+            emailId,
+            password:hashpass,
+            age,
+            gender
+        })
+
         if (user) {
             await user.save();
             res.send("account created successfully");  

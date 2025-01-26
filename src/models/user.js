@@ -18,15 +18,15 @@ const userSchema=new mongoose.Schema({
     }},//custom validator for gender correct value...
     
     "emailId":{type:String,required:true,lowercase:true,unique:true,trim:true,
-        validate:(val)=>validator.isEmail(val),
+        // validate:(val)=>validator.isEmail(val),
     },
     
     "phoneNumber": { 
-        type: String, required: true,unique: true, validate:(val)=>validator.isMobilePhone(val),
+        type: String,unique: true, /*validate:(val)=>validator.isMobilePhone(val),*/
     },
 
     "password":{type:String,required:true,
-        validate:(val)=>validator.isStrongPassword(val),
+        // validate:(val)=>validator.isStrongPassword(val),
     }
 },
 {
