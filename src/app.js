@@ -25,8 +25,8 @@ app.post("/login",async (req,res)=>{
         const ispass=await bcrypt.compare(password,user.password);
 
         if(ispass){
-            const token=await jwt.sign({_id:user._id},"MyFirstBackendProject");//A token (especially JWT - JSON Web Token) is a self-contained piece of data used to verify identity and grant access to resources without requiring repeated logins.
-            res.cookie("token",token);//Cookies are commonly used to store the JWT token on the client side.
+            const token=await jwt.sign({_id:user._id},"MyFirstBackendProject",{expiresIn:"7d"});//A token (especially JWT - JSON Web Token) is a self-contained piece of data used to verify identity and grant access to resources without requiring repeated logins.
+            res.cookie("token",token,{ expires:new Date(Date.now()+100000)});//Cookies are commonly used to store the JWT token on the client side.
             res.send("login succesfull!!");
         }
         else{
