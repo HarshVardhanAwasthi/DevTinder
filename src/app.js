@@ -8,6 +8,7 @@ const User=require("./models/user.js");
 const connectDB=require("./config/database.js");
 const cookieParser = require("cookie-parser");
 
+const {userauth}=require("./middlewares/auth.js");
 app.use(express.json());
 app.use(cookieParser())
 
@@ -38,25 +39,12 @@ app.post("/login",async (req,res)=>{
     }
 })
 
-app.get("/profile",async (req,res)=>{
+//instead of writing authentication code in an api making tougher to read and hochpoch we have created a authentication middleware "userauth", which does the whole work of authentication this make the code more readable and easy to maintain and manage..
+
+app.get("/profile",userauth, async (req,res)=>{
     try {
-        const {token} = req.cookies
-        if(!token){
-            throw new Error("Invalid token..");
-        }
-
-        const decoded=await jwt.verify(token,"MyFirstBackendProject")
-
-        const {_id}=decoded;
-
-        const user=await User.findById(_id);
-        if(user){
-            res.send(user);
-        }
-        else{
-            throw new Error("User not found...");
-        }
-
+        const user=req.user;
+        res.send(user);
 
     } catch (error) {
         res.status(400).send("ERROR: "+error.message);
@@ -64,16 +52,7 @@ app.get("/profile",async (req,res)=>{
 
 })
 
-/*
-    for sign up remember three steps:
-    1- validation of the data--(validatedata(req))
 
-    2- encrypt the password--  const hashpass=await bcrypt.hash(user.password,10);
-                               user.password=hashpass;
-
-    3- create new instance of the user model--(const user = new User({
-                                                 firstName,lastName,emailId,password}))
-*/
 app.post("/signup",async (req,res)=>{
     
     try {
@@ -104,156 +83,10 @@ app.post("/signup",async (req,res)=>{
     
 })
 
-//playing with mongoose methods...
-
-//finding element with a emailId passed by client throgh request to server
-
-app.get("/user",async (req,res)=>{
-
-    const userID=req.body.emailId;
-    try {
-        
-        const user=await User.findOne({emailId:userID});
-        console.log(userID);
-    
-        if(!user){
-            res.status(404).send("user not found");
-        }
-        else{
-            res.send(user);
-        }
-
-    } catch (error) {
-        res.status(400).send("something went wrong!!");
-    }
-})
-
-//finding element using id(id set by mongodb or by  you..)
-
-app.get("/userID",async (req,res)=>{
-
-    const userID=req.body.bhagyahanse;
-    try {
-        
-        const user=await User.findById(userID);
-        console.log(userID);
-    
-        if(!user){
-            res.status(404).send("user not found");
-        }
-        else{
-            res.send(user);
-        }
-
-    } catch (error) {
-        res.status(400).send("something went wrong!!1");
-    }
-})
-
-//finding all the elements of database...
-
-app.get("/feed",async (req,res)=>{
-    try {
-        const user=await User.find({});
-        if (!user) {
-            res.status(404).send("no user found!!");
-        } else {
-            res.send(user);
-        }
-    } catch (error) {
-        res.status(400).send("something went wrong!!");
-    }
-})
-
-
-//deleting one element from database using a single field and its value is accessed by using (req.body.field_name)....
-
-app.delete("/deleteuser",async(req,res)=>{
-    const userId=req.body.emailId;
-    try {
-        if(userId){
-            
-            const deleted=await User.deleteOne({emailId:userId});
-            res.send(deleted);
-
-        }
-        else{
-            res.status(404).send("user not found!!");
-        }
-    } catch (error) {
-        res.status(400).send("something went wrong!!!");
-    }
-    
-})
-
-//deleting user account from database by using userId of the user.....
-
-app.delete("/user",async (req,res)=>{
-    const userId=req.body.userid;
-    try {
-        if(userId){
-            await User.findByIdAndDelete(userId);//shorthand for findOneAndDelete({ _id: id });
-            res.send("accout deleted successfully");
-        }
-        else{
-            res.status(404).send("user not found!!!");
-        }
-    } catch (error) {
-        res.status(400).send("something went wrong!!");
-    }
-})
-
-//updating user data by accesing it from database using id and then updating data fields requested by user to update in its account information....
-
-app.patch("/updateuser/:_id?",async (req,res)=>{
-    const id=req.params._id;
-    const data=req.body;
-    console.log(id);
-    try {
-        const allowed_Update=["skills","age","photoUrl"];//maine bana dia ek array jismein maine wo fields add krdi jo update ke lie allowed hai...
-
-        const isAllowed=Object.keys(data).every((key)=>{
-            return allowed_Update.includes(key);
-        })//object.keys(data)->isne sari fields ki key values extract kr li jo body mein bheji gai hai for update
-        //fir allowed_updates se match kia jo keys bheji gai hain wo updates ke lie allowed hai ki nhi
-        //agr sari fields allowed hai to true return krdo wrna false
-        //ye hogaya api level validation
-        //JO VALIDATION MAINE SCHEMA MEIN INCLUDE KIE HAIN WO HAI SCHEMA LEVEL VALIDATION...
-        if(!isAllowed){
-            throw new Error("Update Not allowed...");
-            
-        }
-        if (id) {
-            const user=await User.findByIdAndUpdate({_id:id},data,{returnDocument:'after',runValidators:true});/*shorthand for this is 
-            const user=await User.findByIdAndUpdate({id,data,{returnDocument:'after'})*/
-            console.log(user);
-            res.send("account updated!!!");
-        } else {
-            res.status(404).send("user not found!!!");
-        }
-    } catch (error) {
-        res.status(400).send("Update Failed "+error.message);
-    }
-})
-
-//updating user data by accesing it from database using emailId of the user and then updating data fields requested by user to update in its account information....
-
-
-app.patch("/update-emailid",async (req,res)=>{
-    const id=req.body.emailId;
-    const data=req.body;
-    console.log(id);
-    try {
-        if (id) {
-            const user=await User.findOneAndUpdate({emailId:id},data,{returnDocument:'after',runValidators:true});
-            console.log(user);
-            res.send("account updated!!!");
-        } else {
-            res.status(404).send("user not found!!!");
-        }
-    } catch (error) {
-        res.status(400).send("something went wrong!!");
-    }
+app.get("/connectionrequest",userauth,(req,res)=>{
+    console.log("connection request sent...")
+    const {firstName}=req.user;
+    res.send(firstName+" sends the connection request");
 })
 
 connectDB().then(()=>{

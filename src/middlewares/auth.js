@@ -1,26 +1,32 @@
-const adminauth=(req,res,next)=>{
-    console.log("admin auth is getting checked");
-    const token="xyz";
-    const isAdminAuthorized=token=="xyz";
-    if(!isAdminAuthorized){
-        res.status(401).send("unauthorized admin");
-    }
-    else{
+const  jwt=require("jsonwebtoken");
+const User=require("../models/user")
+const userauth=async (req,res,next)=>{
+    try
+    {    
+        const {token}=req.cookies;
+
+        if(!token){
+            throw new Error("Not a valid token...");
+        }
+        const decodedobj=await jwt.verify(token,"MyFirstBackendProject");
+
+        const {_id}=decodedobj;
+
+        const user=await User.findById(_id);
+
+        if(!user){
+            throw new Error("No user found...");
+        }
+        req.user=user;
         next();
+    }
+    catch(error)
+    {
+        res.status(400).send("Error:"+error.message);
     }
 }
 
-const userauth=(req,res,next)=>{
-    const token="xyz";
-    const isUserAuthorized=token=="xyyz";
-    if(!isUserAuthorized){
-        res.status(401).send("unauthorized User");
-    }
-    else{
-        next();
-    }
-}
-
+//this is authentication middleware(userauth)...
 module.exports={
-    userauth,adminauth
+    userauth
 }
