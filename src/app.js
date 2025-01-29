@@ -22,11 +22,15 @@ app.post("/login",async (req,res)=>{
         if(!user){
             throw new Error("Invalid Credential");
         }
-        const ispass=await bcrypt.compare(password,user.password);
+        const ispass=await user.validatePassword(password);//we are using schema methods to make code more readable and encapsulate 
+        
+        
+        //writing await is very important otherwise ispass it will not work and user can login with wrong password also ,as as you come on this function it will go there to compare and callstack mein synchronous kaam hota isko bhejdega eventloop ke paas aur aage bdh jaega jab compre hoke result milga tb tk kaam(login) ho chuka hoga...
 
         if(ispass){
-            const token=await jwt.sign({_id:user._id},"MyFirstBackendProject",{expiresIn:"7d"});//A token (especially JWT - JSON Web Token) is a self-contained piece of data used to verify identity and grant access to resources without requiring repeated logins.
-            res.cookie("token",token,{ expires:new Date(Date.now()+100000)});//Cookies are commonly used to store the JWT token on the client side.
+            const token=await user.getJWT();//we are using schema methods to make code more readable and encapsulate 
+
+            res.cookie("token",token,{ expires:new Date(Date.now()+900000)});//Cookies are commonly used to store the JWT token on the client side.
             res.send("login succesfull!!");
         }
         else{

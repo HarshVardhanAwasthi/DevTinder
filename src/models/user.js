@@ -1,4 +1,6 @@
 const mongoose=require("mongoose");
+const jwt=require("jsonwebtoken");
+const bcrypt=require("bcrypt")
 const validator=require("validator");//we have install validator library from npm which helps in validating and sanitizing the database and also in api validation...
 
 // ensuring that data is in a format like in email format is  ("nameofusernumber@gamil.com") mtlb kuch is tarike ka samjh jao
@@ -32,6 +34,23 @@ const userSchema=new mongoose.Schema({
 {
     timestamps:true,
 });
+
+userSchema.methods.getJWT= async function(){
+    const user=this //this refers to the document for which you are using this method...
+
+    const token=await jwt.sign({_id:user.id},"MyFirstBackendProject",{expiresIn:"7d"});
+    return token;
+
+}
+
+userSchema.methods.validatePassword= async function(userinputpassword){
+    const user=this //this refers to the document for which you are using this method...
+    const hashPassword=user.password;
+
+    const isPasswordValidated=await bcrypt.compare(userinputpassword,hashPassword);
+    return isPasswordValidated;
+
+}
 
 const User=mongoose.model("User",userSchema);
 
