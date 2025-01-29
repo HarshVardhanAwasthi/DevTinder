@@ -1,18 +1,21 @@
 const express=require("express")
 const bcrypt=require("bcrypt")
 const app=express();
+var jwt = require("jsonwebtoken")
 const {validatedata}=require("./utils/validation.js")
 const User=require("./models/user.js");
 
 const connectDB=require("./config/database.js");
+const cookieParser = require("cookie-parser");
 
 app.use(express.json());
-
+app.use(cookieParser())
 
 app.post("/login",async (req,res)=>{
     const {emailId,password}=req.body;
 
     const user=await User.findOne({emailId:emailId});
+    
 
     try{
         if(!user){
@@ -21,6 +24,8 @@ app.post("/login",async (req,res)=>{
         const ispass=await bcrypt.compare(password,user.password);
 
         if(ispass){
+            const token=await jwt.sign({_id:user._id},"MyFirstBackendProject");//A token (especially JWT - JSON Web Token) is a self-contained piece of data used to verify identity and grant access to resources without requiring repeated logins.
+            res.cookie("token",token);//Cookies are commonly used to store the JWT token on the client side.
             res.send("login succesfull!!");
         }
         else{
@@ -33,6 +38,31 @@ app.post("/login",async (req,res)=>{
     }
 })
 
+app.get("/profile",async (req,res)=>{
+    try {
+        const {token} = req.cookies
+        if(!token){
+            throw new Error("Invalid token..");
+        }
+
+        const decoded=await jwt.verify(token,"MyFirstBackendProject")
+
+        const {_id}=decoded;
+
+        const user=await User.findById(_id);
+        if(user){
+            res.send(user);
+        }
+        else{
+            throw new Error("User not found...");
+        }
+
+
+    } catch (error) {
+        res.status(400).send("ERROR: "+error.message);
+    }
+
+})
 
 /*
     for sign up remember three steps:
