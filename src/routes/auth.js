@@ -1,0 +1,70 @@
+const express= require("express");
+
+const authRouter=express.Router();
+
+const bcrypt=require("bcrypt");
+const User=require("../models/user");
+
+const {validatedata}=require("../utils/validation")
+
+authRouter.post("/signup",async (req,res)=>{
+    try {
+        validatedata(req);
+
+        const {firstName,lastName,emailId,password,age,gender}=req.body;
+
+        const hashpass=await bcrypt.hash(password,10);
+
+        const user=new User({
+            firstName,
+            lastName,
+            emailId,
+            password:hashpass,
+            age,
+            gender
+        })
+
+        if (user) {
+            await user.save();
+            res.send("account created successfully");  
+        } else {
+            res.status(404).send("not a valid details")
+        }
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+    
+})
+
+authRouter.post("/login",async (req,res)=>{
+    const {emailId,password}=req.body;
+
+    const user=await User.findOne({emailId:emailId});
+    
+
+    try{
+        if(!user){
+            throw new Error("Invalid Credential");
+        }
+        const ispass=await user.validatePassword(password);//we are using schema methods to make code more readable and encapsulate 
+        
+        
+        //writing await is very important otherwise ispass it will not work and user can login with wrong password also ,as as you come on this function it will go there to compare and callstack mein synchronous kaam hota isko bhejdega eventloop ke paas aur aage bdh jaega jab compre hoke result milga tb tk kaam(login) ho chuka hoga...
+
+        if(ispass){
+            const token=await user.getJWT();//we are using schema methods to make code more readable and encapsulate 
+
+            res.cookie("token",token,{ expires:new Date(Date.now()+900000)});//Cookies are commonly used to store the JWT token on the client side.
+            res.send("login succesfull!!");
+        }
+        else{
+            throw new Error("Invalid Credential");        
+        }
+    }
+    
+    catch(error){
+        res.status(400).send("Error: "+error.message);
+    }
+})
+
+module.exports=authRouter;
