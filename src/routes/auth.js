@@ -67,4 +67,11 @@ authRouter.post("/login",async (req,res)=>{
     }
 })
 
+//this is logout api logic is just remove the token of that user from the browser thats it, once token is not available user has to login again...
+
+authRouter.post("/logout",(req,res)=>{
+    res.cookie('token', null, { expires: new Date(Date.now())})
+    res.send("logut  successfull!!");
+})
+
 module.exports=authRouter;
