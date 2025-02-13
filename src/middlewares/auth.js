@@ -27,6 +27,4 @@ const userauth=async (req,res,next)=>{
 }
 
 //this is authentication middleware(userauth)...
-module.exports={
-    userauth
-}
+module.exports={userauth};

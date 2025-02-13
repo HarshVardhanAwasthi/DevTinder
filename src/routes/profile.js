@@ -22,7 +22,7 @@ profileRouter.get("/connectionrequest",userauth,(req,res)=>{
     res.send(firstName+" sends the connection request");
 })
 
-profileRouter.patch('/edit',userauth,(req,res)=>{
+profileRouter.patch('/edit',userauth,async(req,res)=>{
     try {
         if (validateUpdate(req)) {
             const user=req.user;
@@ -35,7 +35,7 @@ profileRouter.patch('/edit',userauth,(req,res)=>{
             })
 
 
-            user.save();
+            await user.save();
 
             //this is an another way of sending response back to client in a json format nothing rocket science..
             res.json({
