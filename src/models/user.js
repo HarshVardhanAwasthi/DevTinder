@@ -15,9 +15,11 @@ const userSchema=new mongoose.Schema({
     
     "age":{type:Number,required:true,min:18},
     
-    "gender":{type:String,required:true,validate:(value)=>{
+    "gender":{type:String,validate:{
+        validator:function (value){
         return ["male","female","others"].includes(value);
-    }},//custom validator for gender correct value...
+    }, message: 'Invalid Gender Type'},//custom validator for gender correct value...
+    },
     
     "emailId":{type:String,required:true,lowercase:true,unique:true,trim:true,
         // validate:(val)=>validator.isEmail(val),
@@ -29,6 +31,15 @@ const userSchema=new mongoose.Schema({
 
     "password":{type:String,required:true,
         // validate:(val)=>validator.isStrongPassword(val),
+    },
+    "photoUrl":{
+        type:String,
+        default:"https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+    },
+
+    "about":{
+        type:String,
+        default:"About The User"
     }
 },
 {

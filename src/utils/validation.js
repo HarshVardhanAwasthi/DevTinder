@@ -18,7 +18,7 @@ const validateUpdate=(req)=>{
 
     const fields=req.body;
 
-    const editAllowedFields=['firstName','lastName','age','gender'];
+    const editAllowedFields=['firstName','lastName','age','gender','photoUrl','about'];
 
     const isAllowed=Object.keys(fields).every(key=>editAllowedFields.includes(key));//this is a way to check if the fields that has been passed by user are subset of the editAllowedFields(basically checking if an  array  passed by  user includes  only those fields that are defined by the server)
 

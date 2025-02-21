@@ -4,9 +4,14 @@ const app=express();
 const connectDB=require("./config/database.js");
 const cookieParser = require("cookie-parser");
 
+const  cors=require("cors");
 //any request that server receives first comes to main file that is app.js and then go to that express routers one by one and gives the response back once url get matched with the request url server sends the response back to client/user,
 //but before going to any express router the middlewares app.use(express.json()); and app.use(cookieParser()); are applied to for parsing/fetching json file from the body of request url and cookieparser is used to read cookies that has been sent with the request, respectively , once these to middlewares are applied then request is send to the express routers..
 
+app.use(cors({
+    origin:"http://localhost:5173",
+    credentials:true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 

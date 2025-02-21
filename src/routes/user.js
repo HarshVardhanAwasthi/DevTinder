@@ -11,12 +11,12 @@ const User = require("../models/user");
 userRouter.get("/user/requests/received",userauth,async (req,res)=>{
     try{
         const loggedInUser=req.user;
-        console.log(loggedInUser);
+        // console.log(loggedInUser);
 
         const requests=await ConnectionRequest.find({
             toUserId:loggedInUser._id,
             status:"interested"
-        })
+        }).populate("fromUserId", "firstName lastName age gender photoUrl");
 
         if(!requests){
             return res.send("No requests");
@@ -46,7 +46,7 @@ userRouter.get("/user/connections",userauth,async(req,res)=>{
                     status:"accepted"
                 }
             ]
-        }).populate("fromUserId toUserId","firstName lastName gender age");
+        }).populate("fromUserId toUserId","firstName lastName gender age photoUrl about");
 
         let data=connections.map((rs)=>{
             if(rs.fromUserId.equals(loggedInUser._id)){
@@ -58,7 +58,7 @@ userRouter.get("/user/connections",userauth,async(req,res)=>{
         });
 
         if(!connections.length){
-            res.json({
+            return res.json({
                 message:`No Connections found for user ${loggedInUser.firstName}`
             })
         }
@@ -67,8 +67,6 @@ userRouter.get("/user/connections",userauth,async(req,res)=>{
             message:`Connections found for user ${loggedInUser.firstName} are:`,
             data:data
         })
-        
-
     }
     catch(error){
         res.status(400).send("ERROR: "+error.message);
@@ -80,8 +78,8 @@ userRouter.get("/user/feed",userauth,async(req,res)=>{
     try{
         const loggedInUser=req.user;
 
-        let limit=parseInt(req.query.limit) || 5;
-        limit=limit>10? 10 : limit;
+        let limit=parseInt(req.query.limit) || 50;
+        limit=limit>50? 50 : limit;
 
         const page=parseInt(req.query.page) || 1;
 
@@ -120,7 +118,7 @@ userRouter.get("/user/feed",userauth,async(req,res)=>{
                 {_id:{$nin:Array.from(hideUsers)}},//Array.from() ka use set ko array mein convert krne ke lia gaya hai kyunki mongoose set pe direct operations nhi perform kr skta hai isliye set ko pahle array mein convert kia gaya hai..
                 {_id:{$ne:loggedInUser._id}}
             ]
-        }).select("firstName lastName age gender").skip(skip).limit(limit)
+        }).select("firstName lastName age gender about photoUrl").skip(skip).limit(limit)
 
 
         // console.log(feedUsers);

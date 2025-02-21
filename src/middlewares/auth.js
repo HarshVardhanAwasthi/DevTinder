@@ -6,7 +6,7 @@ const userauth=async (req,res,next)=>{
         const {token}=req.cookies;
 
         if(!token){
-            throw new Error("Not a valid token...");
+            return res.status(401).send("Please Login!!");
         }
         const decodedobj=await jwt.verify(token,"MyFirstBackendProject");
 
@@ -25,6 +25,5 @@ const userauth=async (req,res,next)=>{
         res.status(400).send("Error:"+error.message);
     }
 }
-
 //this is authentication middleware(userauth)...
 module.exports={userauth};
