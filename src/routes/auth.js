@@ -26,7 +26,7 @@ authRouter.post("/signup", async (req, res) => {
 
     const token = await savedUser.getJWT(); //we are using schema methods to make code more readable and encapsulate
 
-    res.cookie("token", token, { expires: new Date(Date.now() + 900000) }); //Cookies are commonly used to store the JWT token on the client side.
+    res.cookie("token", token, { expires: new Date(Date.now() + 90000000) }); //Cookies are commonly used to store the JWT token on the client side.
 
     if (savedUser) {
       await savedUser.save();
